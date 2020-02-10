@@ -84,7 +84,8 @@ def state_space(trajectory):
     """
     space = []
     for i in range(0, len(trajectory), 3):
-        space.append(trajectory[i])
+        if (trajectory[i] in space) is False:
+            space.append(trajectory[i])
     return space
 
 
