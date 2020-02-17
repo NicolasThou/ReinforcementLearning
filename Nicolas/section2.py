@@ -29,7 +29,7 @@ def action_space():
     ======
     return a list with the 4 movement authorize
     """
-    return [[1,0], [-1,0], [0,1], [0,-1]]  # down, up, right, left
+    return [[1, 0], [-1, 0], [0, 1], [0, -1]]  # down, up, right, left
 
 
 domain = initialize_domain()  # domain use for the all assignement
