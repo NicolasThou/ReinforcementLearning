@@ -12,23 +12,25 @@ def Q_N(p, r, state, action, N, discount_factor=0.99):  # computes Q state-actio
 
         for u in env.action_space:
             # we are only looking for the state which are 'reachable' from x since others one will have p(x'|x,u)=0
-            next_state = env.f(state, u)
-
+            x = env.f(state, u)
             Qs = []
 
             # store the reward recording for each action
-            for u1 in env.action_space.keys():
-                Qs.append(Q_N(p, r, next_state, u1, N-1))
+            for u1 in env.action_space:
+                Qs.append(Q_N(p, r, x, u1, N-1))
 
             # look for which action gives best reward
             max_Q = max(Qs)
 
             # actualize the sum term in Qn recurrence formula
-            sum_Q += p[(state, action, next_state)]*max_Q
+            sum_Q += p[(state, action, x)]*max_Q
         return r[(state, action)] + discount_factor*sum_Q
 
 
-def J_N(x, mu, N, discount_factor=0.99):  # computes J state-value recurrence function with policy µ
+def J_N(x, mu, N, discount_factor=0.99):
+    """
+    computes J state-value recurrence function with policy µ
+    """
     if N < 0:
         print("N cannot be negative !")
         return None
@@ -39,20 +41,23 @@ def J_N(x, mu, N, discount_factor=0.99):  # computes J state-value recurrence fu
         return env.rewards[new_state[0]][new_state[1]] + discount_factor*J_N(new_state, mu, N-1)
 
 
-def determine_optimal_policy_from_Q(Q):  # determine the optimal policy
+def determine_optimal_policy_from_Q(Q):
+    """
+    determine the optimal policy
+    """
     policy = {}
 
-    # determine best action for each state according to Q
+    """ determine best action for each state according to Q """
     for x in env.state_space:
         score = []
         actions = []
 
-        # look over all actions to determine the most profitable
+        """ look over all actions to determine the most profitable """
         for u in env.action_space:
             score.append(Q[(x, u)])
             actions.append(u)
 
-        # look which action gives best reward
+        """ look which action gives best reward """
         index = score.index(max(score))
         best_action = actions[index]
 
@@ -63,8 +68,14 @@ def determine_optimal_policy_from_Q(Q):  # determine the optimal policy
 
 
 def optimal_policy(N):
-    p = {}  # exact probability
-    r = {}  # exact reward
+    """
+    compute the optimal policy for the environnment
+    """
+
+    """ exact probability """
+    p = {}
+    """ exact reward"""
+    r = {}
 
     for x in env.state_space:
         for u in env.action_space:
@@ -75,10 +86,11 @@ def optimal_policy(N):
             p[(x, u, new_state)] = 1
             r[(x, u)] = env.rewards[new_state[0]][new_state[1]]
 
-    # compute the exact optimal policy
+    """ compute the exact optimal policy """
     Q = {}
     for x in env.state_space:
         for u in env.action_space:
             Q[(x, u)] = Q_N(p, r, x, u, N)
 
-    return determine_optimal_policy_from_Q(Q)
+    #return determine_optimal_policy_from_Q(Q)
+    return Q
