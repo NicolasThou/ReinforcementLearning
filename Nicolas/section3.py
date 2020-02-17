@@ -35,7 +35,7 @@ def value_function(x, n):
         return 0
     else:
         action = policy_random(x)  # here we use the policy
-        new_state = next_state(domain, x, action)
+        new_state = next_state(domain, x, action) # here we have disturbance, with certain probability
         reward = domain[new_state[0], new_state[1]]
         return reward + 0.99 * value_function(new_state, n-1)
 

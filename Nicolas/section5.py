@@ -206,18 +206,14 @@ if __name__ == '__main__':
     """
 
     print(domain)  # domain on what we work
-    print('All the state that the agent has met, are : ')
     state_met = state_space2(experience)  # display of each state that the agent met
     np.save('./npy/state_met', state_met)
-    print(state_met)
     state_met2 = state_space2(experience2)  # display of each state that the agent met
     np.save('./npy/state_met2', state_met2)
-    print(state_met2)
 
-    # ===================== test of the estimation functions =================
+    print('===================== test of the estimation functions =================')
 
-    """
-
+    print('here is the exploration of the agent with his environment')
     print(experience)
     r = estimation_r(experience, [2, 4], [1, 0])
     p = estimation_p(experience, [2, 4], [1, 0], [3, 4])
@@ -226,13 +222,11 @@ if __name__ == '__main__':
     {}'.format(p))
     print(state_met)
 
-    """
 
-    # ======================== test of the q function ========================
+    print('======================== test of the q function ========================')
 
     # We want to approximate the Q-function for a state [3,0] and the move
     # to down
-
 
     number = q_function([3, 0], [1, 0], experience, 3)
     print('from the state [3,0] and the action [1 , 0], the Q-function value has a value of :')
@@ -240,11 +234,10 @@ if __name__ == '__main__':
 
 
 
-    # ======================= test of the computing policy ===================
-    """
+    print('======================= test of the computing policy ===================')
 
-    t, act = compute_policy(experience, 3)  # t is like state_met
-    t2, act2 = compute_policy(experience2, 3)  # t2 is like state_met2
+    t, act = compute_policy(experience, 2)  # t is like state_met
+    t2, act2 = compute_policy(experience2, 2)  # t2 is like state_met2
 
     np.save('./npy/policy1', act)
     np.save('./npy/policy2', act2)
@@ -256,17 +249,16 @@ if __name__ == '__main__':
     print('here is the action space for the second agent')  # print all the state that the agent has met
     print(act2)  # print the best action corresponding at each state that the agent has met
 
-    """
 
-    # ======================= test of the estimation of the best policy ===================
 
-    """
+    print('======================= test of the estimation of the best policy ===================')
+
     action = final_policy([2,4], t, act)
     print('the best action to do from the state [2,4] is')
     print(action)
-    """
 
-    # ======================= Display J_N_µ∗ for each state x ===================
+
+    print(' ======================= Display J_N_µ∗ for each state x =================== ')
 
     # Comment all the test before testing this test, even the 8 first line of the main
 

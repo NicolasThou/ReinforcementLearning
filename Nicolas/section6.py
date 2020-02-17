@@ -22,6 +22,7 @@ def q_table_initialize():
     """
     return np.zeros((25, 4))
 
+
 def r_table_initialize():
     """
     initialize the reward table at 0 for everywhere, where there is
@@ -42,6 +43,7 @@ def index_state_table(state):
     """
     return state[0]*5 + state[1]
 
+
 def state_index_table(index):
     """
     This function compute the state of the row in the table with a index for input
@@ -56,6 +58,7 @@ def state_index_table(index):
     j = index - i
     return [i, j]
 
+
 def index_action_table(action):
     """
     This function compute the index of the column in the table with a action for input
@@ -66,7 +69,7 @@ def index_action_table(action):
         return an index of the column in the table
 
     """
-    for index, action_boucle in enumerate(a):
+    for index, action_boucle in enumerate(a):  # we look for the corresponding column in the table in compared to a
         if action_boucle == action:
             return index
 
@@ -87,7 +90,25 @@ def r_table_update(r_table, trajectory):
         action = trajectory[i+1]
         index_row = index_state_table(state)
         index_col = index_action_table(action)
-        r_table[index_row, index_col] = trajectory[i+2]
+        if trajectory[i+2] == -3:
+            if state == [1,0] and action == [-1, 0]:
+                r_table[index_row, index_col] = trajectory[i+2]
+            elif state == [0, 1] and action == [0, -1]:
+                r_table[index_row, index_col] = trajectory[i + 2]
+            elif state == [0, 0] and action == [-1, 0]:
+                r_table[index_row, index_col] = trajectory[i + 2]
+            elif state == [0, 0] and action == [0, -1]:
+                r_table[index_row, index_col] = trajectory[i + 2]
+            elif state == [4, 2] and action == [0, 1]:
+                r_table[index_row, index_col] = trajectory[i + 2]
+            elif state == [3, 3] and action == [1, 0]:
+                r_table[index_row, index_col] = trajectory[i + 2]
+            elif state == [4, 4] and action == [-1, 0]:
+                r_table[index_row, index_col] = trajectory[i + 2]
+            elif state == [4, 3] and action == [1, 0]:
+                r_table[index_row, index_col] = trajectory[i + 2]
+        else:
+            r_table[index_row, index_col] = trajectory[i + 2]
 
     return r_table
 
@@ -110,28 +131,29 @@ def max_Q(index, q_table):
     return np.max(q_table[index])
 
 
-def offline_q_learning(trajectory, q_table, r_table, n):
+def offline_q_learning(trajectory, q_table, r_table):
     """
     Compute iteratively Q(xk, uk) with α = 0.05.
 
     Argument:
     =========
-    trajectory : is the historic of the agent (x(t), u(t), r(t), x(t+1) )
+    trajectory : is the historic of the agent (x(t), u(t), r(t), x(t+1) ... )
 
     Return:
     ======
-    Return a value
+    Return the q_table where the column are : down, up, right, left
     """
 
-    for i in range(0, len(trajectory)-3, 3):
-        index = index_state_table(trajectory[i])  # index of actual state in the q_table
-        index2 = index_state_table(trajectory[i+3])  # index of next state in the q_table
+    for i in range(0, len(trajectory)-3, 3):  # we look for each (x(k), u(k)) to update the q_table
+        index = index_state_table(trajectory[i])  # index of x(k) in the q_table
+        index2 = index_state_table(trajectory[i+3])  # index of x(k+1) in the q_table
         index3 = index_action_table(trajectory[i+1])  # index of the action in the q_table
         max = max_Q(index2, q_table)
         reward = r_table[index, index3]
         q_table[index, index3] = ((1-0.05) * q_table[index, index3]) + (0.05 * (reward + (0.99 * max)))
 
     return q_table
+
 
 def policy_from_Q(q_table):
     """
@@ -154,8 +176,9 @@ def policy_from_Q(q_table):
 r_table = r_table_initialize()
 r_table = r_table_update(r_table, experience)
 q_table = q_table_initialize()
-q_table = offline_q_learning(experience, q_table, r_table, 50)
+q_table = offline_q_learning(experience, q_table, r_table)
 action_space_policy = policy_from_Q(q_table)
+
 
 def final_policy_section6(state):
     """
@@ -191,12 +214,13 @@ def value_function_section6(x, n):
     else:
         action = final_policy_section6(x)  # here we use the policy
         new_state = next_state(domain, x, action)
-        reward = domain[new_state[0], new_state[1]]
+        index = index_state_table(new_state)  # index of x(k+1) in the q_table
+        index2 = index_action_table(action)  # index of the action in the q_table
+        reward = r_table[index, index2]
         return reward + 0.99 * value_function_section6(new_state, n-1)
 
 
 def display_section6(step):
-
     """
     Display J_N_µ(x) for each state x
     """
@@ -218,16 +242,11 @@ def display_section6(step):
 """============================================ section 6.2 =============================================="""
 
 
-r_table = r_table_initialize()
-r_table = r_table_update(r_table, experience)
-q_table = q_table_initialize()
-q_table = offline_q_learning(experience, q_table, r_table, 50)
-action_space_policy = policy_from_Q(q_table)
-
 for i in range(100):
-    historic3, all_state_met3 = simulation(domain, [3, 0], 10000)  # here we simulate a 5000 step trip from an agent who moves randomly (uniform), usefull for the section4
-
-
+    historic3, all_state_met3 = simulation(domain, [3, 0], 1000)  # here we simulate a 1000 step trip from an agent who moves randomly (uniform)
+    r_table = r_table_update(r_table, historic3)
+    q_table = offline_q_learning(historic3, q_table, r_table)
+action_space_policy = policy_from_Q(q_table)
 
 
 if __name__ == '__main__':
@@ -241,6 +260,7 @@ if __name__ == '__main__':
     print('---------here the r_table---------')
     print(r_table)
     print('--------- here the q_table ---------')
+    np.set_printoptions(suppress=True)
     print(q_table)
     print('--------- here the action space for the policy ---------')
     print(action_space_policy)
