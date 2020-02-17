@@ -1,5 +1,5 @@
-import Section2 as S2
-import Section4 as S4
+import Bilel.section2 as S2
+import Bilel.Section4 as S4
 from matplotlib import pyplot as plt
 from random import shuffle
 

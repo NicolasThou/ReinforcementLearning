@@ -1,4 +1,4 @@
-import Section2 as S2
+import Bilel.section2 as S2
 import numpy as np
 from numpy.random import Generator
 
