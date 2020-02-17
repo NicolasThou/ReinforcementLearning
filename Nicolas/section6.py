@@ -129,6 +129,23 @@ def offline_q_learning(q_table, r_table, n):
 
     return q_table
 
+def policy_from_Q(q_table):
+    """
+    This function compute the policy
+    Args:
+        q_table: is the q_table for each action and each state we have the q_value
+
+    Returns:
+        return the action space
+
+    """
+    size = np.shape(q_table)
+    space = []
+    for i in range(size[0]):
+        indice = np.argmax(q_table[i])
+        space.append(a[indice])
+    return space
+
 
 if __name__ == '__main__':
 
@@ -138,9 +155,12 @@ if __name__ == '__main__':
     q_table = offline_q_learning(q_table, r_table, 50)
 
     print(domain)
-    print('here the experience of the agent')
     print(r_table)
     print(q_table)
+
+    space = policy_from_Q(q_table)
+    print(space)
+
 
 
 

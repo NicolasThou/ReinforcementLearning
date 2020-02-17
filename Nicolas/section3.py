@@ -53,7 +53,7 @@ def display2(step):
         for j in range(m):
             x[0] = i
             x[1] = j
-            row.append(value_function(x, step))
+            row.append(value_function(x, step))  # here we add the value_function for the state x
         tableau.append(row)
 
     tableau = np.array(tableau)
@@ -61,7 +61,7 @@ def display2(step):
 
 
 if __name__ == '__main__':
-    display2(500)  # we can choose a N which is large enough to approximate well the infinite time horizon of the policy
+    display2(600)  # we can choose a N which is large enough to approximate well the infinite time horizon of the policy
 
 
 

@@ -1,4 +1,4 @@
-import Section2 as S2
+import Bilel.section2 as S2
 
 
 def R(x, u):  # return rewards obtained after taking action 'u' while in state 'x'
