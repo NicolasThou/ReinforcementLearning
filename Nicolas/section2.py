@@ -131,9 +131,9 @@ def simulation(domain, initial_state, step):
     return historic, trajectory
 
 
-historic, all_state_met = simulation(domain, [3, 0], 5000)  # here we simulate a 100 step trip from an agent who moves randomly (uniform), usefull for the section4
+historic, all_state_met = simulation(domain, [3, 0], 5000)  # here we simulate a 5000 step trip from an agent who moves randomly (uniform), usefull for the section4
 np.save('./npy/historic', historic)
-historic2, all_state_met2 = simulation(domain, [3, 0], 5000)  # here we simulate a 100 step trip from an agent who moves randomly (uniform), usefull for the section4
+historic2, all_state_met2 = simulation(domain, [3, 0], 10000)  # here we simulate a 5000 step trip from an agent who moves randomly (uniform), usefull for the section4
 np.save('./npy/historic2', historic2)
 
 def simulation2(domain, initial_state, step):
@@ -186,7 +186,7 @@ if __name__ == '__main__':
 
     #  test the simulation
 
-    simulation2(domain, [3,0], 1000)
+    simulation2(domain, [3,0], 30)
 
 
 
