@@ -1,6 +1,7 @@
-import Section2 as S2
-import Section4 as S4
 from matplotlib import pyplot as plt
+import environment as env
+import trajectory as tj
+import functions as fn
 
 
 def convergence_speed():
@@ -9,14 +10,14 @@ def convergence_speed():
     T_values = [i for i in range(100, 1200, 50)]
 
     for T in T_values:
-        history, p, r = S4.create_trajectory((3, 0), T)
+        history, p, r = tj.create_trajectory((3, 0), T)
         p_sum = 0
         r_sum = 0
-        for x in S2.state_space:
-            for u in S2.action_space:
-                new_state = S2.f(x, u)
+        for x in env.state_space:
+            for u in env.action_space:
+                new_state = env.f(x, u)
                 p_sum += 1 - p[(x, u, new_state)]
-                r_sum += abs(r[(x, u)] - S2.rewards[new_state[0]][new_state[1]])
+                r_sum += abs(r[(x, u)] - env.rewards[new_state[0]][new_state[1]])
 
         p_error.append(p_sum)
         r_error.append(r_sum)
@@ -37,38 +38,73 @@ def convergence_speed():
     return T_values, p_error, r_error
 
 
+def computes_Q(p, r, N, discount_factor=0.99):  # computes Q state-action value recurrence function
+    if N < 0:
+        print("N can't be negative")
+        return None
+    else:
+        Q = {}
+        for x in env.state_space:
+            for u in env.action_space:
+                Q[(x, u)] = fn.Q_N(p, r, x, u, N)
+        return Q
+
+
+def determine_optimal_policy(Q):  # determine the optimal policy
+    opt_policy = {}
+
+    # determine best action for each state according to Qn
+    for x in env.state_space:
+        score = []
+        actions = []
+
+        # look over all actions to determine the most profitable
+        for u in env.action_space:
+            score.append(Q[(x, u)])
+            actions.append(u)
+
+        # look which action gives best reward
+        index = score.index(max(score))
+        best_action = actions[index]
+
+        # save action for this state
+        opt_policy[x] = best_action
+
+    return opt_policy
+
+
 # compare the state-action value function for an optimal policy inferred from approximations of p and r and
 # an optimal policy inferred from the exact one
 def compare_optimal_policies(T, qN, jN):
     # compute exact optimal policy
     p = {}  # exact probability
     r = {}  # exact reward
-    for x in S2.state_space:
-        for u in S2.action_space:
-            for next_state in S2.state_space:
+    for x in env.state_space:
+        for u in env.action_space:
+            for next_state in env.state_space:
                 p[(x, u, next_state)] = 0
 
-            new_state = S2.f(x, u)
+            new_state = env.f(x, u)
             p[(x, u, new_state)] = 1
-            r[(x, u)] = S2.rewards[new_state[0]][new_state[1]]
+            r[(x, u)] = env.rewards[new_state[0]][new_state[1]]
 
     # compute the exact optimal policy
-    Q = S4.computes_Q(p, r, qN)
-    u_star = S4.determine_optimal_policy(Q)
+    Q = computes_Q(p, r, qN)
+    u_star = determine_optimal_policy(Q)
 
     # compute approximation of optimal policy
-    history, p_appr, r_appr = S4.create_trajectory((3, 0), T)
-    Q_appr = S4.computes_Q(p_appr, r_appr, qN)
-    u_star_appr = S4.determine_optimal_policy(Q_appr)
+    history, p_appr, r_appr = tj.create_trajectory((3, 0), T)
+    Q_appr = computes_Q(p_appr, r_appr, qN)
+    u_star_appr = determine_optimal_policy(Q_appr)
 
     # computation of J_optimal and J_approximate
     J = []
-    for x in S2.state_space:
-        j_optimal_policy = round(S4.J_N(x, u_star, r, jN), 2)
-        j_appr_optimal_policy = round(S4.J_N(x, u_star_appr, r, jN), 2)
+    for x in env.state_space:
+        j_optimal_policy = round(fn.J_N(x, u_star, r, jN), 2)
+        j_appr_optimal_policy = round(fn.J_N(x, u_star_appr, r, jN), 2)
         J.append([j_optimal_policy, j_appr_optimal_policy])
 
-    for x, i in zip(S2.state_space, range(len(S2.state_space))):
+    for x, i in zip(env.state_space, range(len(env.state_space))):
         diff = abs(J[i][0] - J[i][1])
         str_x = "x = " + str(x) + " | J_optimal = " + str(J[i][0]) + " | J_approximate = " + str(J[i][1]) + " | diff = " + str(diff)
         print(str_x)
@@ -81,18 +117,21 @@ def compare_optimal_policies(T, qN, jN):
 def influence_of_T_on_Q(T, N):
     p = {}  # exact probability
     r = {}  # exact reward
-    for x in S2.state_space:
-        for u in S2.action_space:
-            new_state = S2.f(x, u)
+    for x in env.state_space:
+        for u in env.action_space:
+            for next_state in env.state_space:
+                p[(x, u, next_state)] = 0
+
+            new_state = env.f(x, u)
             p[(x, u, new_state)] = 1
-            r[(x, u)] = S2.rewards[new_state[0]][new_state[1]]
+            r[(x, u)] = env.rewards[new_state[0]][new_state[1]]
 
     Q = {}
-    for x in S2.state_space:
-        for u in S2.action_space:
-            history, p_appr, r_appr = S4.create_trajectory((3, 0), T)
-            Q_exact = round(S4.Q_N(p, r, x, u, N), 2)
-            Q_appr = round(S4.Q_N(p_appr, r_appr, x, u, N), 2)
+    for x in env.state_space:
+        for u in env.action_space:
+            history, p_appr, r_appr = tj.create_trajectory((3, 0), T)
+            Q_exact = round(fn.Q_N(p, r, x, u, N), 2)
+            Q_appr = round(fn.Q_N(p_appr, r_appr, x, u, N), 2)
             Q[(x, u)] = (Q_exact, Q_appr)
 
     for key in Q:
