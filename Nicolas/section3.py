@@ -18,7 +18,7 @@ your choice. Display J_N_µ(x) for each state x.
 def value_function(x, n):
     """
     Compute the return of a stationary policy thanks to the Bellman Equation
-    We use the policy_left to compute each J(x)
+    We use the policy_random to compute each J(x)
     The discount factor gamma is equal to 0.99
 
     Argument:
@@ -34,13 +34,13 @@ def value_function(x, n):
     if n == 0:
         return 0
     else:
-        action = policy_left(x)  # here we use the policy
+        action = policy_random(x)  # here we use the policy
         new_state = next_state(domain, x, action)
         reward = domain[new_state[0], new_state[1]]
         return reward + 0.99 * value_function(new_state, n-1)
 
 
-def display(step):
+def display2(step):
     """
     Display J_N_µ(x) for each state x
     """
@@ -61,7 +61,7 @@ def display(step):
 
 
 if __name__ == '__main__':
-    display(500)  # we can choose a N which is large enough to approximate well the infinite time horizon of the policy
+    display2(500)  # we can choose a N which is large enough to approximate well the infinite time horizon of the policy
 
 
 
