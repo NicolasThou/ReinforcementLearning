@@ -12,19 +12,18 @@ def Q_N(p, r, state, action, N, discount_factor=0.99):  # computes Q state-actio
 
         for u in env.action_space:
             # we are only looking for the state which are 'reachable' from x since others one will have p(x'|x,u)=0
-            next_state = env.f(state, u)
-
+            x = env.f(state, u)
             Qs = []
 
             # store the reward recording for each action
-            for u1 in env.action_space.keys():
-                Qs.append(Q_N(p, r, next_state, u1, N-1))
+            for u1 in env.action_space:
+                Qs.append(Q_N(p, r, x, u1, N-1))
 
             # look for which action gives best reward
             max_Q = max(Qs)
 
             # actualize the sum term in Qn recurrence formula
-            sum_Q += p[(state, action, next_state)]*max_Q
+            sum_Q += p[(state, action, x)]*max_Q
         return r[(state, action)] + discount_factor*sum_Q
 
 

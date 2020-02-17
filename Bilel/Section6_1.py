@@ -25,7 +25,8 @@ def Q_learning(T, alpha=0.05, discount_factor=0.99):
         for u in env.action_space:
             next_state_Q.append(Q[(next_state, u)])
 
-        Q[(state, action)] = (1 - alpha)*Q[(state, action)] + alpha*(reward + discount_factor*max(next_state_Q))  # update
+        # update
+        Q[(state, action)] = (1 - alpha)*Q[(state, action)] + alpha*(reward + discount_factor*max(next_state_Q))
 
     return Q
 
