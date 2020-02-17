@@ -2,7 +2,7 @@ import environment as env
 import numpy as np
 
 
-def policy(x):  # define a uniform policy
+def policy():  # return a random action
     i = np.random.randint(low=0, high=4)
     actions = list(env.action_space.keys())
     return actions[i]
@@ -27,7 +27,7 @@ def create_trajectory(initial_x, T):  # creates ht (with ressources limitation a
 
     x = initial_x
     for i in range(T):  # random trajectory computing
-        u = policy(x)
+        u = policy()
         new_x = env.f(x, u)
         rew = env.rewards[new_x[0]][new_x[1]]
         trajectory.append([x, u, rew, new_x])  # add current information to trajectory history

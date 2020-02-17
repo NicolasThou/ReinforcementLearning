@@ -1,5 +1,4 @@
 from random import shuffle
-import math
 import environment as env
 import trajectory as tj
 import functions as fn
@@ -22,72 +21,24 @@ def Q_learning(T, alpha=0.05, discount_factor=0.99):
     for sample in trajectory:
         state, action, reward, next_state = sample
 
-        maxQ = -math.inf
-        # determine max of Q(x(k+1))
+        next_state_Q = []
         for u in env.action_space:
-            maxQ = Q[(next_state, u)] if Q[(next_state, u)] > maxQ else maxQ
+            next_state_Q.append(Q[(next_state, u)])
 
-        Q[(state, action)] = (1 - alpha)*Q[(state, action)] + alpha*(reward + discount_factor*maxQ)  # update
+        Q[(state, action)] = (1 - alpha)*Q[(state, action)] + alpha*(reward + discount_factor*max(next_state_Q))  # update
 
     return Q
-
-
-def determine_optimal_policy_from_Q(Q):  # determine the optimal policy
-    policy = {}
-
-    # determine best action for each state according to Q
-    for x in env.state_space:
-        score = []
-        actions = []
-
-        # look over all actions to determine the most profitable
-        for u in env.action_space:
-            score.append(Q[(x, u)])
-            actions.append(u)
-
-        # look which action gives best reward
-        index = score.index(max(score))
-        best_action = actions[index]
-
-        # save action for this state
-        policy[x] = best_action
-
-    return policy
-
-
-def optimal_policy(qN):
-    p = {}  # exact probability
-    r = {}  # exact reward
-
-    for x in env.state_space:
-        for u in env.action_space:
-            for next_state in env.state_space:
-                p[(x, u, next_state)] = 0
-
-            new_state = env.f(x, u)
-            p[(x, u, new_state)] = 1
-            r[(x, u)] = env.rewards[new_state[0]][new_state[1]]
-
-    # compute the exact optimal policy
-    Q = {}
-    for x in env.state_space:
-        for u in env.action_space:
-            Q[(x, u)] = fn.Q_N(p, r, x, u, qN)
-
-    u_star = determine_optimal_policy_from_Q(Q)
-
-    return u_star
 
 
 if __name__ == '__main__':
     T = 1000
     qN = 3
-    jN = 200
+    jN = 50
 
     Q = Q_learning(T)
-    policy_learning = determine_optimal_policy_from_Q(Q)
+    policy_learning = fn.determine_optimal_policy_from_Q(Q)
 
-    optimal_policy = optimal_policy(qN)
+    optimal_policy = fn.optimal_policy(qN)
 
     # computation of J_optimal and J_approximate
     J = []
