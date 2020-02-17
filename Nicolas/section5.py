@@ -1,11 +1,24 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import random
-from section3 import *
-from section2 import *
+from Nicolas.section4 import *
+from Nicolas.section3 import *
+from Nicolas.section2 import *
 
 experience = np.load('./npy/historic.npy', allow_pickle=True)
 experience2 = np.load('./npy/historic2.npy', allow_pickle=True)
+
+"""
+Implement a routine which estimates r(x, u) and p(x 0|x, u) from a given trajectory
+ht = (x0, u0, r0, x1, u1, r1, ... , ut−1, rt−1, xt). Display the convergence speed towards p and r.
+Compute Qb by using br(x, u) and bp(x0 |x, u) that estimate the MDP structure. Derive µb∗ from Qb. Display JN
+µb∗ , along with JNµ∗ , for each state x.
+
+Run your implementation over several trajectories, generated from a random uniform
+policy, of different lengths. Explain the influence of the length on the quality of the
+approximation Qˆ using an infinite norm.
+
+"""
 
 def estimation_r(trajectory, x, u):
     """
