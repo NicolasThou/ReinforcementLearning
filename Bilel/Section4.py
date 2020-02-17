@@ -4,13 +4,19 @@ import environment as env
 import functions as fn
 
 
-def policy(x):  # define a uniform policy
+def policy(x):
+    """
+    define a uniform policy
+    """
     i = np.random.randint(low=0, high=4)
     actions = list(env.action_space.keys())
     return actions[i]
 
 
-def create_trajectory(initial_x, T):  # creates ht (with ressources limitation algorithm)
+def create_trajectory(initial_x, T):
+    """
+    creates ht (with ressources limitation algorithm)
+    """
     trajectory = []
     N = {}
     R = {}
@@ -45,7 +51,10 @@ def create_trajectory(initial_x, T):  # creates ht (with ressources limitation a
     return trajectory, p, r
 
 
-def J_N(x, mu, r, N, discount_factor=0.99):  # computes J state-value recurrence function
+def J_N(x, mu, r, N, discount_factor=0.99):
+    """
+    computes J state-value recurrence function
+    """
     if N < 0:
         print("N cannot be negative !")
         exit()
@@ -55,7 +64,10 @@ def J_N(x, mu, r, N, discount_factor=0.99):  # computes J state-value recurrence
         return r[(x, mu[x])] + discount_factor*J_N(env.f(x, mu[x]), mu, r, N-1)
 
 
-def computes_Q(p, r, N, discount_factor=0.99):  # computes Q state-action value recurrence function
+def computes_Q(p, r, N, discount_factor=0.99):
+    """
+    computes Q state-action value recurrence function
+    """
     if N < 0:
         print("N can't be negative")
         return None

@@ -27,7 +27,10 @@ def Q_N(p, r, state, action, N, discount_factor=0.99):  # computes Q state-actio
         return r[(state, action)] + discount_factor*sum_Q
 
 
-def J_N(x, mu, N, discount_factor=0.99):  # computes J state-value recurrence function with policy µ
+def J_N(x, mu, N, discount_factor=0.99):
+    """
+    computes J state-value recurrence function with policy µ
+    """
     if N < 0:
         print("N cannot be negative !")
         return None
@@ -38,20 +41,23 @@ def J_N(x, mu, N, discount_factor=0.99):  # computes J state-value recurrence fu
         return env.rewards[new_state[0]][new_state[1]] + discount_factor*J_N(new_state, mu, N-1)
 
 
-def determine_optimal_policy_from_Q(Q):  # determine the optimal policy
+def determine_optimal_policy_from_Q(Q):
+    """
+    determine the optimal policy
+    """
     policy = {}
 
-    # determine best action for each state according to Q
+    """ determine best action for each state according to Q """
     for x in env.state_space:
         score = []
         actions = []
 
-        # look over all actions to determine the most profitable
+        """ look over all actions to determine the most profitable """
         for u in env.action_space:
             score.append(Q[(x, u)])
             actions.append(u)
 
-        # look which action gives best reward
+        """ look which action gives best reward """
         index = score.index(max(score))
         best_action = actions[index]
 
@@ -62,8 +68,14 @@ def determine_optimal_policy_from_Q(Q):  # determine the optimal policy
 
 
 def optimal_policy(N):
-    p = {}  # exact probability
-    r = {}  # exact reward
+    """
+    compute the optimal policy for the environnment
+    """
+
+    """ exact probability """
+    p = {}
+    """ exact reward"""
+    r = {}
 
     for x in env.state_space:
         for u in env.action_space:
@@ -74,10 +86,11 @@ def optimal_policy(N):
             p[(x, u, new_state)] = 1
             r[(x, u)] = env.rewards[new_state[0]][new_state[1]]
 
-    # compute the exact optimal policy
+    """ compute the exact optimal policy """
     Q = {}
     for x in env.state_space:
         for u in env.action_space:
             Q[(x, u)] = Q_N(p, r, x, u, N)
 
-    return determine_optimal_policy_from_Q(Q)
+    #return determine_optimal_policy_from_Q(Q)
+    return Q

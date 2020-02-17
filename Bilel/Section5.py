@@ -38,7 +38,10 @@ def convergence_speed():
     return T_values, p_error, r_error
 
 
-def computes_Q(p, r, N, discount_factor=0.99):  # computes Q state-action value recurrence function
+def computes_Q(p, r, N, discount_factor=0.99):
+    """
+    computes Q state-action value recurrence function
+    """
     if N < 0:
         print("N can't be negative")
         return None
@@ -50,9 +53,12 @@ def computes_Q(p, r, N, discount_factor=0.99):  # computes Q state-action value 
         return Q
 
 
-# compare the state-action value function for an optimal policy inferred from approximations of p and r and
-# an optimal policy inferred from the exact one
 def compare_policies(T, qN, jN):
+    """
+    compare the state-action value function for an optimal policy inferred from approximations of p and r and
+    an optimal policy inferred from the exact one
+    """
+
     # compute optimal exact
     optimal_policy = fn.optimal_policy(qN)
 
@@ -76,11 +82,18 @@ def compare_policies(T, qN, jN):
     return J
 
 
-# display the difference between the Q calculated with the MDP structure
-# and the Q calculated with the exact p and r
 def influence_of_T_on_Q(T, N):
-    p = {}  # exact probability
-    r = {}  # exact reward
+    """
+    display the difference between the Q calculated with the MDP structure
+    and the Q calculated with the exact p and r
+    """
+
+    # exact probability
+    p = {}
+
+    # exact reward
+    r = {}
+
     for x in env.state_space:
         for u in env.action_space:
             for next_state in env.state_space:
@@ -101,7 +114,6 @@ def influence_of_T_on_Q(T, N):
     for key in Q:
         diff = abs(Q[key][0] - Q[key][1])
         str_x = "(x,u) = " + str(key) + " | Q_exact = " + str(Q[key][0]) + " | Q_appr = " + str(Q[key][1]) + " | diff = " + str(diff)
-        #print(str_x)
 
     return Q
 

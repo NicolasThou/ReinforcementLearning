@@ -15,7 +15,10 @@ action_space = {
 }
 
 
-def f(x, action, beta=0.0):  # dynamic
+def f(x, action, beta=0.0):
+    """
+    implementation of the dynamic of the environment
+    """
     rng = np.random.default_rng()
     w = rng.uniform()
     if w <= 1-beta:
