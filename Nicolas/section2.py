@@ -33,9 +33,9 @@ def action_space():
 
 
 domain = initialize_domain()  # domain use for the all assignement
-np.save('./npy/domain', domain)
+#np.save('./npy/domain', domain)
 a = action_space()  # a is the action space
-np.save('./npy/action_space', a)
+#np.save('./npy/action_space', a)
 
 
 def policy_left(x):
@@ -131,10 +131,10 @@ def simulation(domain, initial_state, step):
     return historic, trajectory
 
 
-historic, all_state_met = simulation(domain, [3, 0], 5000)  # here we simulate a 5000 step trip from an agent who moves randomly (uniform), usefull for the section4
-np.save('./npy/historic', historic)
-historic2, all_state_met2 = simulation(domain, [3, 0], 10000)  # here we simulate a 5000 step trip from an agent who moves randomly (uniform), usefull for the section4
-np.save('./npy/historic2', historic2)
+#historic, all_state_met = simulation(domain, [3, 0], 1000)  # here we simulate a 5000 step trip from an agent who moves randomly (uniform), usefull for the section4
+#np.save('./npy/historic', historic)
+#historic2, all_state_met2 = simulation(domain, [3, 0], 10000)  # here we simulate a 5000 step trip from an agent who moves randomly (uniform), usefull for the section4
+#np.save('./npy/historic2', historic2)
 
 def simulation2(domain, initial_state, step):
     """
@@ -178,10 +178,13 @@ if __name__ == '__main__':
 
     #  test of the initialize_domain, and the 2 policies
 
+    print('------- here is the domain -------')
     print(domain)
     a1 = policy_left([2,3])
+    print('------- here is the action for the policy left and the state [2,3] -------')
     print(a1)  # always [1,0]
     a2 = policy_random([2,3])
+    print('------- here is the action for the policy random and the state [2,3] -------')
     print(a2)  # random action
 
     #  test the simulation
