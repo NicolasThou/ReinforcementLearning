@@ -1,8 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import random
-from section3 import *
-from section2 import *
+from Nicolas.section3 import *
+from Nicolas.section2 import *
 
 """
 

@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import random
-from section2 import *
+from Nicolas.section2 import *
 
 """
 
