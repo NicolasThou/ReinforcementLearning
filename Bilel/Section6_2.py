@@ -2,9 +2,13 @@ import environment as env
 import trajectory as tj
 import functions as fn
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def get_max_action(Q, state):
+    """
+    give the action that provides the maximum of Q for a state along all the actions
+    """
     score = []
     actions = []
 
@@ -20,6 +24,9 @@ def get_max_action(Q, state):
 
 
 def get_max_value(Q, state):
+    """
+    give the maximum of Q for a state along all the actions
+    """
     values = []
     for action in env.action_space:
         values.append(Q[(state, action)])
@@ -27,26 +34,39 @@ def get_max_value(Q, state):
     return max(values)
 
 
-def display(Q_learning, qN=2):
-    optimal_policy = fn.optimal_policy(qN)
+def display(Q_learning, qN=3):
+    """
+    display the maximum difference between Q_learning and Q
+    """
 
-    for N in range(50, 500, 50):
-        diff = []
-        for state in env.state_space:
-            value = []
-            for action in env.action_space:
-                value.append(Q_learning[(state, action)])
+    # determine Q using the optimal policy
+    Q = fn.optimal_policy(qN)
 
-            q = max(value)
-            j = fn.J_N(state, optimal_policy, N)
+    diff = []
 
-            diff.append(round(abs(q - j), 2))
+    # we compute the infinite norm, i.e. the maximum difference between Q_learning and Q of all the states
+    for state in env.state_space:
+        value = []
 
-        print("     ||Q - J||inf = " + str(max(diff)))
-        print()
+        for action in env.action_space:
+            ql = Q_learning[(state, action)]
+            q = Q[(state, action)]
+            value.append(round(abs(ql - q), 2))
+
+        diff.append(max(value))
+
+    error = max(diff)
+    print("     ||Q_learning - Q||inf = " + str(error))
+
+    return error
+
 
 
 def protocol_1(discount_factor=0.99, alpha=0.05, epsilon=0.25):
+    """
+    first experimental protocol
+    """
+    error = []
     Q = {}
 
     # initialization
@@ -64,24 +84,35 @@ def protocol_1(discount_factor=0.99, alpha=0.05, epsilon=0.25):
             p = np.random.default_rng().random()
 
             # epsilon-greedy policy
-            if p < 1 - epsilon:
+            if p < 1 - epsilon:  # exploitation
                 action = get_max_action(Q, state)
-            else:  # random action
+            else:  # exploration
                 action = tj.policy()
 
             next_state = env.f(state, action)
+
+            # extract reward associates with state x and action u
             reward = env.rewards[next_state[0]][next_state[1]]
+
+            # compute the max value of Q for the state x'
             maxQ = get_max_value(Q, next_state)
 
-            Q[(state, action)] = (1-alpha)*Q[(state, action)] + alpha*(reward + discount_factor*maxQ)  # update Q
+            # update Q
+            Q[(state, action)] = (1-alpha)*Q[(state, action)] + alpha*(reward + discount_factor*maxQ)
 
             state = next_state
 
         print("episode : " + str(episode+1))
-        display(Q)
+        error.append(display(Q))
+
+    return error
 
 
 def protocol_2(discount_factor=0.99, epsilon=0.25):
+    """
+    second experimental protocol
+    """
+    error = []
     Q = {}
 
     for x in env.state_space:
@@ -110,10 +141,16 @@ def protocol_2(discount_factor=0.99, epsilon=0.25):
             alpha *= 0.8
 
         print("episode : " + str(episode+1))
-        display(Q)
+        error.append(display(Q))
+
+    return error
 
 
 def protocol_3(discount_factor=0.99, alpha=0.05, epsilon=0.25):
+    """
+    third experimental protocol
+    """
+    error = []
     Q = {}
 
     for x in env.state_space:
@@ -149,8 +186,23 @@ def protocol_3(discount_factor=0.99, alpha=0.05, epsilon=0.25):
             state = next_state
 
         print("episode : " + str(episode+1))
-        display(Q)
+        error.append(display(Q))
+
+    return error
 
 
 if __name__ == '__main__':
-    protocol_1()
+    episode = range(100)
+    error_1 = protocol_1()
+    error_2 = protocol_2()
+    error_3 = protocol_3()
+
+    fig, axs = plt.subplots(1, 1)
+    axs.plot(episode, error_1, label='protocol 1')
+    axs.plot(episode, error_2, label='protocol 2')
+    axs.plot(episode, error_3, label='protocol 3')
+    axs.set_ylabel('|| $\hat{Q}$ - $Q$ ||$_\infty$')
+    axs.set_xlabel('episode')
+    axs.set_title('Convergence of $\hat{Q}$ to $Q$')
+    axs.legend()
+    plt.show()

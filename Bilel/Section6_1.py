@@ -2,6 +2,7 @@ from random import shuffle
 import environment as env
 import trajectory as tj
 import functions as fn
+from matplotlib import pyplot as plt
 
 
 def Q_learning(T, alpha=0.05, discount_factor=0.99):
@@ -36,23 +37,37 @@ def Q_learning(T, alpha=0.05, discount_factor=0.99):
 
 
 if __name__ == '__main__':
-    jN = 100
+    jN = 50
 
-    # compute the Q-learning algorithm
-    Q = Q_learning(1000)
+    T = [t for t in range(100, 1100, 100)]
+    error = []
+    for t in T:
 
-    # infer a policy from Q
-    policy_learning = fn.determine_optimal_policy_from_Q(Q)
+        # compute the Q-learning algorithm
+        Q = Q_learning(t)
 
-    # extract the optimal policy
-    optimal_policy = fn.optimal_policy(4)
+        # infer a policy from Q
+        policy_learning = fn.determine_optimal_policy_from_Q(Q)
 
-    # computation of J_optimal and J_learning
-    for x, i in zip(env.state_space, range(len(env.state_space))):
-        # J_learning is computed using the policy inferred from the Q-learning
-        j_learning = round(fn.J_N(x, policy_learning, jN), 2)
-        j_optimal = round(fn.J_N(x, optimal_policy, jN), 2)
+        # extract the optimal policy
+        optimal_policy = fn.optimal_policy(3)
 
-        diff = round(abs(j_learning - j_optimal), 2)
-        str_x = "x = " + str(x) + " | J_optimal = " + str(j_learning) + " | J_learning = " + str(j_optimal) + " | diff = " + str(diff)
-        print(str_x)
+        d = []
+        # computation of J_optimal and J_learning
+        for x, i in zip(env.state_space, range(len(env.state_space))):
+            # J_learning is computed using the policy inferred from the Q-learning
+            j_learning = round(fn.J_N(x, policy_learning, jN), 2)
+            j_optimal = round(fn.J_N(x, optimal_policy, jN), 2)
+
+            diff = round(abs(j_learning - j_optimal), 2)
+            d.append(diff)
+            str_x = "x = " + str(x) + " | J_optimal = " + str(j_learning) + " | J_learning = " + str(j_optimal) + " | diff = " + str(diff)
+            # print(str_x)
+        error.append(max(d))
+
+    fig, axs = plt.subplots(1, 1)
+    axs.plot(T, error)
+    axs.set_ylabel('|| $J_{\hat{\mu_{*}}}$ - $J_{\mu_{*}}$ ||$_\infty$')
+    axs.set_xlabel('T')
+    axs.set_title('Convergence of $J_{\hat{\mu_{*}}}^{N}$ to $J_{\mu_{*}}^{N}$')
+    plt.show()

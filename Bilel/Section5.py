@@ -16,7 +16,7 @@ def convergence_speed():
         for x in env.state_space:
             for u in env.action_space:
                 new_state = env.f(x, u)
-                p_sum += 1 - p[(x, u, new_state)]
+                p_sum += (1 - p[(x, u, new_state)])
                 r_sum += abs(r[(x, u)] - env.rewards[new_state[0]][new_state[1]])
 
         p_error.append(p_sum)
@@ -25,12 +25,12 @@ def convergence_speed():
     fig, axs = plt.subplots(2, 1, figsize=(10, 10), constrained_layout=True)
 
     axs[0].plot(T_values, p_error)
-    axs[0].set_ylabel('diff (p,$\^p$)')
+    axs[0].set_ylabel('$p_{error}$')
     axs[0].set_xlabel('T')
     axs[0].set_title('Convergence speed of $\^p$')
 
     axs[1].plot(T_values, r_error)
-    axs[1].set_ylabel('diff (r,$\^r$)')
+    axs[1].set_ylabel('$r_{error}$')
     axs[1].set_xlabel('T')
     axs[1].set_title('Convergence speed of $\^r$')
 
@@ -120,27 +120,26 @@ def influence_of_T_on_Q(T, N):
 
 if __name__ == '__main__':
     # compute the convergence of p and r
-    # T, p_error, r_error = convergence_speed()
+    T, p_error, r_error = convergence_speed()
 
     # compare the policy inferred from Q computed using a trajectory to a real optimal policy
     # J = compare_policies(t, 3, 100)
 
     # display the convergence of Q along T
-    T = [t for t in range(100, 1100, 100)]
-    error = []
-    for t in T:
-        print(t)
-        Q = influence_of_T_on_Q(t, 3)
-        sum = 0
-        for key in Q:
-            sum += abs(Q[key][0] - Q[key][1])
-
-        error.append(sum)
-
-    # plt.plot(T, error)
-    fig, axs = plt.subplots(1, 1)
-    axs.plot(T, error)
-    axs.set_ylabel('|| $\^Q$ - Q ||$_\infty$')
-    axs.set_xlabel('T')
-    axs.set_title('Convergence of $\^Q$ to Q')
-    plt.show()
+    # T = [t for t in range(100, 1100, 100)]
+    # error = []
+    # for t in T:
+    #     print(t)
+    #     Q = influence_of_T_on_Q(t, 3)
+    #     sum = 0
+    #     for key in Q:
+    #         sum += abs(Q[key][0] - Q[key][1])
+    #
+    #     error.append(sum)
+    #
+    # fig, axs = plt.subplots(1, 1)
+    # axs.plot(T, error)
+    # axs.set_ylabel('|| $\^Q$ - Q ||$_\infty$')
+    # axs.set_xlabel('T')
+    # axs.set_title('Convergence of $\^Q$ to Q')
+    # plt.show()
