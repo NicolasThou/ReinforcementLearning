@@ -2,13 +2,19 @@ import environment as env
 import numpy as np
 
 
-def policy():  # return a random action
+def policy():
+    """
+    return a random action
+    """
     i = np.random.randint(low=0, high=4)
     actions = list(env.action_space.keys())
     return actions[i]
 
 
-def create_trajectory(initial_x, T):  # creates ht (with ressources limitation algorithm)
+def create_trajectory(initial_x, T):
+    """
+    creates ht (with ressources limitation algorithm)
+    """
     trajectory = []
     N = {}
     R = {}
