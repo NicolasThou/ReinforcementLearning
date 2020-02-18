@@ -70,12 +70,12 @@ def compare_policies(T, qN, jN):
     # computation of J_optimal and J_approximate
     J = []
     for x in env.state_space:
-        j_optimal = round(fn.J_N(x, optimal_policy, r, jN), 2)
-        j_learned = round(fn.J_N(x, learned_policy, r, jN), 2)
+        j_optimal = round(fn.J_N(x, optimal_policy, jN), 2)
+        j_learned = round(fn.J_N(x, learned_policy, jN), 2)
         J.append([j_optimal, j_learned])
 
     for x, i in zip(env.state_space, range(len(env.state_space))):
-        diff = abs(J[i][0] - J[i][1])
+        diff = round(abs(J[i][0] - J[i][1]), 2)
         str_x = "x = " + str(x) + " | J_optimal = " + str(J[i][0]) + " | J_approximate = " + str(J[i][1]) + " | diff = " + str(diff)
         print(str_x)
 
@@ -111,7 +111,7 @@ def influence_of_T_on_Q(T, N):
             Q_learned = round(fn.Q_N(p_appr, r_appr, x, u, N), 2)
             Q[(x, u)] = (Q_optimal, Q_learned)
 
-    for key in Q:
+    for key in list(Q.keys()):
         diff = abs(Q[key][0] - Q[key][1])
         str_x = "(x,u) = " + str(key) + " | Q_exact = " + str(Q[key][0]) + " | Q_appr = " + str(Q[key][1]) + " | diff = " + str(diff)
 
@@ -119,8 +119,13 @@ def influence_of_T_on_Q(T, N):
 
 
 if __name__ == '__main__':
+    # compute the convergence of p and r
     # T, p_error, r_error = convergence_speed()
-    # J = compare_policies(400, 3, 100)
+
+    # compare the policy inferred from Q computed using a trajectory to a real optimal policy
+    # J = compare_policies(t, 3, 100)
+
+    # display the convergence of Q along T
     T = [t for t in range(100, 1100, 100)]
     error = []
     for t in T:
@@ -132,5 +137,10 @@ if __name__ == '__main__':
 
         error.append(sum)
 
-    plt.plot(T, error)
+    # plt.plot(T, error)
+    fig, axs = plt.subplots(1, 1)
+    axs.plot(T, error)
+    axs.set_ylabel('|| $\^Q$ - Q ||$_\infty$')
+    axs.set_xlabel('T')
+    axs.set_title('Convergence of $\^Q$ to Q')
     plt.show()

@@ -27,24 +27,23 @@ def get_max_value(Q, state):
     return max(values)
 
 
-def display(Q_learning, qN=1):
+def display(Q_learning, qN=2):
     optimal_policy = fn.optimal_policy(qN)
 
-    learning_policy = fn.determine_optimal_policy_from_Q(Q_learning)
-
-    diff = []
-    for state in env.state_space:
+    for N in range(50, 500, 50):
         diff = []
-        sum_q1 = 0
-        sum_q2 = 0
-        for action in env.action_space:
-            sum_q1 += Q_learning[(state, action)]
-            sum_q2 += optimal_policy[(state, action)]
+        for state in env.state_space:
+            value = []
+            for action in env.action_space:
+                value.append(Q_learning[(state, action)])
 
-        diff.append(round(abs(sum_q1 - sum_q2), 2))
+            q = max(value)
+            j = fn.J_N(state, optimal_policy, N)
 
-    print("     ||Q - J||inf = " + str(max(diff)))
-    print()
+            diff.append(round(abs(q - j), 2))
+
+        print("     ||Q - J||inf = " + str(max(diff)))
+        print()
 
 
 def protocol_1(discount_factor=0.99, alpha=0.05, epsilon=0.25):
@@ -61,14 +60,13 @@ def protocol_1(discount_factor=0.99, alpha=0.05, epsilon=0.25):
         state = (3, 0)
 
         for transition in range(1000):
-            p = rng = np.random.default_rng().random()
             action = None
+            p = np.random.default_rng().random()
 
             # epsilon-greedy policy
             if p < 1 - epsilon:
                 action = get_max_action(Q, state)
-            else:
-                # random action
+            else:  # random action
                 action = tj.policy()
 
             next_state = env.f(state, action)
@@ -83,7 +81,7 @@ def protocol_1(discount_factor=0.99, alpha=0.05, epsilon=0.25):
         display(Q)
 
 
-def protocol_2(discount_factor=0.99, alpha=0.05, epsilon=0.25):
+def protocol_2(discount_factor=0.99, epsilon=0.25):
     Q = {}
 
     for x in env.state_space:
@@ -94,8 +92,8 @@ def protocol_2(discount_factor=0.99, alpha=0.05, epsilon=0.25):
         alpha = 0.05
         state = (3, 0)
         for transition in range(1000):
-            p = rng = np.random.default_rng().random()
             action = None
+            p = np.random.default_rng().random()
 
             if p < 1 - epsilon:
                 action = get_max_action(Q, state)
@@ -126,8 +124,8 @@ def protocol_3(discount_factor=0.99, alpha=0.05, epsilon=0.25):
         state = (3, 0)
         buffer = []
         for transition in range(1000):
-            p = rng = np.random.default_rng().random()
             action = None
+            p = np.random.default_rng().random()
 
             if p < 1 - epsilon:
                 action = get_max_action(Q, state)
@@ -146,7 +144,7 @@ def protocol_3(discount_factor=0.99, alpha=0.05, epsilon=0.25):
                 x, u, r, next_x = buffer[index]
                 maxQ = get_max_value(Q, next_x)
 
-                Q[(state, action)] = (1-alpha)*Q[(state, action)] + alpha*(reward + discount_factor*maxQ)  # update Q
+                Q[(state, action)] = (1-alpha)*Q[(state, action)] + alpha*(reward + discount_factor*maxQ)
 
             state = next_state
 
