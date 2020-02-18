@@ -39,8 +39,12 @@ def Q_learning(T, alpha=0.05, discount_factor=0.99):
 if __name__ == '__main__':
     jN = 50
 
+    # trajectory lengths
     T = [t for t in range(100, 1100, 100)]
+
+    # error of the approximate policy
     error = []
+
     for t in T:
 
         # compute the Q-learning algorithm
@@ -53,7 +57,7 @@ if __name__ == '__main__':
         optimal_policy = fn.optimal_policy(3)
 
         d = []
-        # computation of J_optimal and J_learning
+        # computation of the error through the J function
         for x, i in zip(env.state_space, range(len(env.state_space))):
             # J_learning is computed using the policy inferred from the Q-learning
             j_learning = round(fn.J_N(x, policy_learning, jN), 2)
@@ -62,7 +66,7 @@ if __name__ == '__main__':
             diff = round(abs(j_learning - j_optimal), 2)
             d.append(diff)
             str_x = "x = " + str(x) + " | J_optimal = " + str(j_learning) + " | J_learning = " + str(j_optimal) + " | diff = " + str(diff)
-            # print(str_x)
+            print(str_x)
         error.append(max(d))
 
     fig, axs = plt.subplots(1, 1)

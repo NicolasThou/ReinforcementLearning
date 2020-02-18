@@ -5,14 +5,20 @@ import functions as fn
 
 
 def convergence_speed():
+    """
+    Computes and display the convergence of p and r
+    """
     p_error = []
     r_error = []
-    T_values = [i for i in range(100, 1200, 50)]
+    T = [i for i in range(100, 1200, 50)]
 
-    for T in T_values:
+    # we compute the error of the approximations for different trajectory length
+    for t in T:
         history, p, r = tj.create_trajectory((3, 0), T)
         p_sum = 0
         r_sum = 0
+
+        # compute the error
         for x in env.state_space:
             for u in env.action_space:
                 new_state = env.f(x, u)
@@ -22,25 +28,24 @@ def convergence_speed():
         p_error.append(p_sum)
         r_error.append(r_sum)
 
+    # plot the convergence of p and r, along T
     fig, axs = plt.subplots(2, 1, figsize=(10, 10), constrained_layout=True)
-
-    axs[0].plot(T_values, p_error)
+    axs[0].plot(T, p_error)
     axs[0].set_ylabel('$p_{error}$')
     axs[0].set_xlabel('T')
     axs[0].set_title('Convergence speed of $\^p$')
-
-    axs[1].plot(T_values, r_error)
+    axs[1].plot(T, r_error)
     axs[1].set_ylabel('$r_{error}$')
     axs[1].set_xlabel('T')
     axs[1].set_title('Convergence speed of $\^r$')
-
     plt.show()
-    return T_values, p_error, r_error
+
+    return T, p_error, r_error
 
 
 def computes_Q(p, r, N, discount_factor=0.99):
     """
-    computes Q state-action value recurrence function
+    computes Q state-action value recurrence function for all state-action
     """
     if N < 0:
         print("N can't be negative")
@@ -58,16 +63,15 @@ def compare_policies(T, qN, jN):
     compare the state-action value function for an optimal policy inferred from approximations of p and r and
     an optimal policy inferred from the exact one
     """
-
     # compute optimal exact
     optimal_policy = fn.optimal_policy(qN)
 
-    # compute approximation of optimal policy
+    # compute approximation of optimal policy from a trajectory
     history, p, r = tj.create_trajectory((3, 0), T)
     Q_learned = computes_Q(p, r, qN)
     learned_policy = fn.determine_optimal_policy_from_Q(Q_learned)
 
-    # computation of J_optimal and J_approximate
+    # comparison of the policies through J
     J = []
     for x in env.state_space:
         j_optimal = round(fn.J_N(x, optimal_policy, jN), 2)
@@ -87,13 +91,13 @@ def influence_of_T_on_Q(T, N):
     display the difference between the Q calculated with the MDP structure
     and the Q calculated with the exact p and r
     """
-
     # exact probability
     p = {}
 
     # exact reward
     r = {}
 
+    # instantiate the exact probability and reward function
     for x in env.state_space:
         for u in env.action_space:
             for next_state in env.state_space:
@@ -114,32 +118,33 @@ def influence_of_T_on_Q(T, N):
     for key in list(Q.keys()):
         diff = abs(Q[key][0] - Q[key][1])
         str_x = "(x,u) = " + str(key) + " | Q_exact = " + str(Q[key][0]) + " | Q_appr = " + str(Q[key][1]) + " | diff = " + str(diff)
+        print(str_x)
 
     return Q
 
 
 if __name__ == '__main__':
-    # compute the convergence of p and r
-    T, p_error, r_error = convergence_speed()
+    # # compute the convergence of p and r
+    # T, p_error, r_error = convergence_speed()
 
-    # compare the policy inferred from Q computed using a trajectory to a real optimal policy
+    # # compare the policy inferred from Q computed using a trajectory to a real optimal policy
     # J = compare_policies(t, 3, 100)
 
     # display the convergence of Q along T
-    # T = [t for t in range(100, 1100, 100)]
-    # error = []
-    # for t in T:
-    #     print(t)
-    #     Q = influence_of_T_on_Q(t, 3)
-    #     sum = 0
-    #     for key in Q:
-    #         sum += abs(Q[key][0] - Q[key][1])
-    #
-    #     error.append(sum)
-    #
-    # fig, axs = plt.subplots(1, 1)
-    # axs.plot(T, error)
-    # axs.set_ylabel('|| $\^Q$ - Q ||$_\infty$')
-    # axs.set_xlabel('T')
-    # axs.set_title('Convergence of $\^Q$ to Q')
-    # plt.show()
+    T = [t for t in range(100, 1100, 100)]
+    error = []
+    for t in T:
+        print(t)
+        Q = influence_of_T_on_Q(t, 3)
+        sum = 0
+        for key in Q:
+            sum += abs(Q[key][0] - Q[key][1])
+
+        error.append(sum)
+
+    fig, axs = plt.subplots(1, 1)
+    axs.plot(T, error)
+    axs.set_ylabel('|| $\^Q$ - Q ||$_\infty$')
+    axs.set_xlabel('T')
+    axs.set_title('Convergence of $\^Q$ to Q')
+    plt.show()
