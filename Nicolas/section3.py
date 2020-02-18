@@ -64,4 +64,3 @@ if __name__ == '__main__':
     display2(600)  # we can choose a N which is large enough to approximate well the infinite time horizon of the policy
 
 
-
