@@ -20,6 +20,7 @@ approximation Qˆ using an infinite norm.
 
 """
 
+
 def estimation_r(trajectory, x, u):
     """
     This function compute from a random uniform policy an estimation of r(x, u) from a trajectory of size T.
@@ -131,7 +132,7 @@ def q_function(x, u, h, n):
     if n == 0:
         return 0
     else:
-        r = estimation_r(h, x, u)  # We estimate the reward according the x and u we've ever met
+        r = estimation_r(h, x, u)  # We estimate the reward according the x and u we've ever met, otherwise it's -5000
         sum = 0
         X = state_space(x)  # We update state space that it's possible to reach from x
         for i in X:
@@ -139,14 +140,18 @@ def q_function(x, u, h, n):
             p = estimation_p(h, x, u, i)
             for action in a:
                 list_q.append(q_function(i, action, h, n-1))
-            value_max = max(list_q)
-            sum += p * value_max
-        return r + (0.99 * sum)
+            value_max = max(list_q)  # here we have the max, but if i and action is a pair of (x,u)
+            # that the agent has never met, so the value_max will be negative
+            sum += p * value_max  # So it may multiply a probabilité between 0 and 1 to a negative number
+        return r + (0.99 * sum)  # We understand now that the q_value can be a big negative number
 
 
 def compute_policy(h, n):
     """
     This function estimate for each state met in the experience, the best action to do.
+    For each state that the agent has met, we compute the best q_value for each action.
+    Then we don't add the action but the index in the action space " a " of the better action to do
+    for this state. We iterate this for all the state that the agent has met.
 
     Argument:
     ========
@@ -167,12 +172,15 @@ def compute_policy(h, n):
         for action in a:
             compare.append(q_function(state, action, h, n))
         compare = np.array(compare)
-        act.append(np.argmax(compare))
+        act.append(np.argmax(compare)) # argument is the index which correspond to the index in the action space a
 
     return trajectory, act
 
 
-def final_policy(x, trajectory, act):
+every_state_met, act = compute_policy(experience, 2)
+
+
+def final_policy_section5(x):
     """
     return the action to do according to a state.
 
@@ -186,15 +194,62 @@ def final_policy(x, trajectory, act):
     =======
     return an action
     """
-    for i, j in enumerate(trajectory):
+
+    for i, j in enumerate(every_state_met):
         if j == x:
             return a[act[i]]
-    print('the state in parameter has never been meet yet')
-    return a[0]  # random move
+        else:
+            # the state in parameter has never been meet yet
+            return a[0]  # random move
 
+
+def value_function_section5(x, n):
+    """
+    Compute the return of a stationary policy thanks to the Bellman Equation
+    We use the policy that we found to compute each J(x)
+    The discount factor gamma is equal to 0.99
+
+    Argument:
+    ========
+    x : is the initial state
+    n : number of value function
+
+    Return:
+    =======
+    return an integer, which is the estimation of J^µ
+
+    """
+    if n == 0:
+        return 0
+    else:
+        action = final_policy_section5(x)  # here we use the policy
+        new_state = next_state(domain, x, action)
+        reward = estimation_r(experience, new_state, action)  # here we can have a big negative number
+        # if the agent has never met the pair (new_state, action)
+        return reward + 0.99 * value_function_section5(new_state, n-1)
+
+
+def display_section5(step):
+    """
+    Display J_N_µ(x) for each state x
+    """
+    x = [0, 0]
+    n, m = np.shape(domain)
+    tableau = []  # table of J_N_µ(x) for each state x
+    for i in range(n):
+        row = []
+        for j in range(m):
+            x[0] = i
+            x[1] = j
+            row.append(value_function_section5(x, step))  # here we add the value_function for the state x
+        tableau.append(row)
+
+    tableau = np.array(tableau)
+    print(tableau)
 
 
 if __name__ == '__main__':
+
     """
     We notice that we went a little too far in the section4. In fact, we read the course for this section5 
     during coding the section4, and we applied method for the estimation of p(x2|x1, u) and r(x, u) for the section4.
@@ -208,8 +263,6 @@ if __name__ == '__main__':
     print(domain)  # domain on what we work
     state_met = state_space2(experience)  # display of each state that the agent met
     np.save('./npy/state_met', state_met)
-    state_met2 = state_space2(experience2)  # display of each state that the agent met
-    np.save('./npy/state_met2', state_met2)
 
     print('===================== test of the estimation functions =================')
 
@@ -217,9 +270,13 @@ if __name__ == '__main__':
     print(experience)
     r = estimation_r(experience, [2, 4], [1, 0])
     p = estimation_p(experience, [2, 4], [1, 0], [3, 4])
+    print()
     print('The reward estimate for the state [2,4] and the action [1,0] is : {} ' .format(r))
+    print()
     print('The probability estimate for being in the state [3,4] from the state [2,4] by taking the action [1,0] is : \
     {}'.format(p))
+    print()
+    print('here are all the state that the agent has met, like every_state_met')
     print(state_met)
 
 
@@ -233,54 +290,28 @@ if __name__ == '__main__':
     print(number)
 
 
-
     print('======================= test of the computing policy ===================')
 
-    t, act = compute_policy(experience, 2)  # t is like state_met
-    t2, act2 = compute_policy(experience2, 2)  # t2 is like state_met2
 
-    np.save('./npy/policy1', act)
-    np.save('./npy/policy2', act2)
-
+    print("here are all the state that agent has met")
+    print(every_state_met)
     print()
-    print('here is the action space for the first agent')  # print all the state that the agent has met
+    print('here is the action space for the agent')  # print all the state that the agent has met
     print(act)  # print the best action corresponding at each state that the agent has met
-
-    print('here is the action space for the second agent')  # print all the state that the agent has met
-    print(act2)  # print the best action corresponding at each state that the agent has met
-
 
 
     print('======================= test of the estimation of the best policy ===================')
 
-    action = final_policy([2,4], t, act)
+    action = final_policy_section5([2,4])
     print('the best action to do from the state [2,4] is')
     print(action)
 
 
     print(' ======================= Display J_N_µ∗ for each state x =================== ')
 
-    # Comment all the test before testing this test, even the 8 first line of the main
+    display_section5(500)
 
-    """
-    s1 = np.load('./npy/state_met.npy', allow_pickle=True)
-    s1 = s1.tolist()
-    s2 = np.load('./npy/state_met2.npy', allow_pickle=True)
-    s2 = s2.tolist()
-    pol1 = np.load('./npy/policy1.npy', allow_pickle=True)
-    pol1 = pol1.tolist()
-    pol2 = np.load('./npy/policy2.npy', allow_pickle=True)
-    pol2 = pol2.tolist()
 
-    print(s1)
-    print(pol1)
-    print(s2)
-    print(pol2)
-
-    print(value_function([0, 3], s1, pol1, 500))
-    print(value_function([0, 3], s2, pol2, 500))
-
-    """
 
 
 
