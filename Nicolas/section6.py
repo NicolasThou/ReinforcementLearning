@@ -1,9 +1,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import random
-from Nicolas.section2 import *
-from Nicolas.section3 import *
-from Nicolas.section4 import *
+from section2 import *
+from section3 import *
+from section4 import *
 
 """
 Sample trajectories from a random uniform policy with a finite, large enough time horizon T. Implement a routine 
@@ -258,7 +258,7 @@ for i in range(100):
     historic3, all_state_met3 = simulation(domain, [3, 0], 1000)  # here we simulate a 1000 step trip from
     # an agent who moves randomly (uniform)
     r_table2 = r_table_update(r_table2, historic3)
-    q_table2 = offline_q_learning(historic3, q_table2, r_table2)
+    q_table2 = offline_q_learning(historic3, q_table2, r_table2) # here we update the q-table at each step
 
 action_space_policy_section_6_2 = policy_from_Q(q_table2)
 

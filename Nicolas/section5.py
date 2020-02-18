@@ -1,9 +1,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import random
-from Nicolas.section4 import *
-from Nicolas.section3 import *
-from Nicolas.section2 import *
+from section4 import *
+from section3 import *
+from section2 import *
 
 experience = np.load('./npy/historic.npy', allow_pickle=True)
 experience2 = np.load('./npy/historic2.npy', allow_pickle=True)
@@ -102,6 +102,7 @@ def display_convergence_p(x1, u, x2):
     p_real = estimation_p(x1, u, x2)
     different_p_list = (different_p_list / p_real) * 100
     print(different_p_list)
+
 
 
 def state_space(x):
@@ -346,11 +347,11 @@ if __name__ == '__main__':
 
     """
     We notice that we went a little too far in the section4. In fact, we read the course for this section5 
-    during coding the section4, and we applied method for the estimation of p(x2|x1, u) and r(x, u) for the section4.
+    during coding the Assignment 1 part 1, and we applied method for the estimation of p(x2|x1, u) and r(x, u) for the section4.
     We though that the assumption that we don't know r(x, u) neither p(x2|x1, u) was true for the section4.
     Whereas, in the section4 it was enough to just implement a little function for r which return the reward. 
     And implement also a simple function for p(x2|x1, u) which return the probability to be in x2 from x1 and taking the
-    action u. Anyway, we have already done the section 5. So it's just the same functions from the section4.
+    action u.
     
     """
 
